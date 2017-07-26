@@ -1,0 +1,24 @@
+{
+  "name": "duetify",
+  "version": "0.0.1",
+  "description": "Search and play your favorite artist's collaborations from Spotify",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbyington/duetify.git"
+  },
+  "keywords": [
+    "spotify",
+    "duet",
+    "collaboration"
+  ],
+  "author": "dbyington",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dbyington/duetify/issues"
+  },
+  "homepage": "https://github.com/dbyington/duetify#readme"
+}
