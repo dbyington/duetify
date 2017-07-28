@@ -89,9 +89,10 @@ export class AuthService {
     if (this.localStorage.length() === 0) return false;
     const data = {};
     const fields = ['access_token','refresh_token','expires_in','token_type'];
-    for ( let field in fields ) {
+    fields.forEach( field => {
+      console.log('getting',field, this.localStorage.get(field));
       data[field] = this.localStorage.get(field);
-    }
+    });
     console.log('loaded from localStorage',data);
     return data;
   }
