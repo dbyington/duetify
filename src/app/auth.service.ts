@@ -47,9 +47,7 @@ export class AuthService {
     if (!data) {
       data = this._loadFromLocalStorage();
     }
-    console.log('does access_token exist:',data.access_token);
     if (data.access_token) {
-      console.log('got access_token',data.access_token);
       let test = this._testAccessToken(data.access_token);
       if (test) {
         this._setAccessToken(data.access_token);
@@ -85,15 +83,12 @@ export class AuthService {
   };
 
   private _loadFromLocalStorage = () => {
-    console.log('checking localStorage:',this.localStorage.length());
     if (this.localStorage.length() === 0) return false;
     const data = {};
     const fields = ['access_token','refresh_token','expires_in','token_type'];
     fields.forEach( field => {
-      console.log('getting',field, this.localStorage.get(field));
       data[field] = this.localStorage.get(field);
     });
-    console.log('loaded from localStorage',data);
     return data;
   }
 
