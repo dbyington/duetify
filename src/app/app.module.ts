@@ -6,6 +6,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieModule } from 'ngx-cookie';
 import { Router } from '@angular/router';
 import { LocalStorageModule } from 'angular-2-local-storage';
+import { MaterializeModule } from 'angular2-materialize';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -45,6 +46,7 @@ import { RoutingModule } from './routing/routing.module';
     CookieModule.forRoot(),
     FlexLayoutModule,
     RoutingModule,
+    MaterializeModule,
     LocalStorageModule.withConfig({
       prefix: 'duetify',
       storageType: 'localStorage',

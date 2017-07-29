@@ -19,11 +19,12 @@ export class SpotifyApiService {
       },
       err => {
         console.log('got an error:', err);
+        return undefined;
       }
     );
     if (result) this.access_token = token;
   }
 
-  
+
 
 }

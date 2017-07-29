@@ -2,6 +2,13 @@
 body {
   display: flex;
   flex-direction: column;
-  background-color: black;
-  color: #9f9f9f;
+  background-color: #000000;
+  color: #5A6D76;
+  width: 100vw;
+  font-family: 'Comfortaa', cursive;
+  font-size: 1.4em;
+}
+
+.container {
+  background-color: #182A33;
 }
