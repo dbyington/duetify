@@ -13,30 +13,35 @@ export class SpotifyApiService {
 
   private apiUrl = 'https://api.spotify.com/v1/';
   private access_token: string;
-  private authHeader: object;
+  // private authHeader: object;
 
   constructor(private http: HttpClient) { }
 
-  public checkToken = async (token) => {
-    const result = await this.http.get(this.apiUrl + 'me', {
+  public checkToken = (token): Observable<{}> => {
+    let checkResult = {};
+    this.http.get(this.apiUrl + 'me', {
       headers: new HttpHeaders().append('Authorization', 'Bearer ' + token),
     })
-    .subscribe(
-      data => {
-        return data;
-      },
-      err => {
-        console.log('got an error:', err);
-        return undefined;
-      }
-    );
-    if (result) this.access_token = token;
+      .subscribe(
+        data => {
+          this.access_token = token;
+          console.log('checkToken:',data);
+          checkResult = data;
+        },
+        err => {
+          console.log('got an error:', err);
+          checkResult =  err.error.error;
+        }
+      );
+    return Observable.of(checkResult);
   }
+
   private _setAuthToken = (token) => {
     this.access_token = token;
   }
 
   public searchArtists = (artistString: string): Observable<Artist[]> => {
+    console.log('searchArtists searching:',artistString);
     const authHeader = new HttpHeaders().append('Authorization', 'Bearer ' + this.access_token);
     let artistsObservable = [];
     if (artistString && artistString !== '') {
@@ -56,16 +61,19 @@ export class SpotifyApiService {
               artist.smallPicUrl = obj.images[picId].url;
               artist.bigPicUrl = obj.images[0].url;
             }
+            // console.log('searchArtist got:',artist);
             // artistsObservable = [artist, ...artistsObservable];
             artistsObservable.push(artist);
           })
+          // console.log('searchArtist returning:',artistsObservable);
+          return Observable.of(artistsObservable);
         },
         err => {
           console.log('Error searching artists:', err);
         }
       );
+      return Observable.of(artistsObservable);
     }
-    return Observable.of(artistsObservable);
   }
 
   public searchArtistTracks = (artistString: string): Observable<Track[]> => {
@@ -94,15 +102,18 @@ export class SpotifyApiService {
                 track.uri = tk.uri;
                 // track.album; // TODO: as mentioned in track.js
                 tracks.push(track);
+                // console.log('searchArtistTracks got track:',track);
               }
             }
           });
+          return Observable.of(tracks);
         },
         err => {
           console.log('Error searching artist tracks:', err);
           return err;
         }
       );
+      // console.log('searchArtistTracks returning:',tracks);
     }
     return Observable.of(tracks);
 

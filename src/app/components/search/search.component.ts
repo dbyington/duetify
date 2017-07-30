@@ -7,6 +7,7 @@ import {distinctUntilChanged} from 'rxjs/operator/distinctUntilChanged';
 import { FormControl } from '@angular/forms';
 
 import { SpotifyApiService } from '../../spotify-api.service';
+import { AuthService } from '../../auth.service';
 import { Artist } from '../../artist';
 import { Track } from '../../track';
 
@@ -18,14 +19,14 @@ const artists = []
 })
 export class SearchComponent implements OnInit {
   public artists: Observable<Artist[]>;
-  public tracks: Array<Track>;
+  public tracks: Observable<Track[]>;
   @Input() private artist = 'Steve Jones';
   private artistsearch = new Subject<string>();
   private artistComplete: object;
   @Input() private state;
   // @Output() searchArtistChange: EventEmitter<string> = new EventEmitter();
 
-  constructor(private spotify: SpotifyApiService) {
+  constructor(private auth: AuthService, private spotify: SpotifyApiService) {
     this.state = this.formatArtists(this.artists).subscribe(obj => {
       console.log('artist list:',obj);
       this.artistComplete = obj;
@@ -44,8 +45,10 @@ export class SearchComponent implements OnInit {
       .distinctUntilChanged()
       .switchMap(search => {
         console.log('searching;',search);
-        if (search) {
-          return this.spotify.searchArtists(search);
+        if (search && this.auth.isAuthenticated()) {
+          const stuff = this.spotify.searchArtists(search);
+          console.log('search component stuff:',stuff);
+          return stuff;
         } else {
           return Observable.of<Artist[]>([]);
         }
@@ -60,7 +63,11 @@ export class SearchComponent implements OnInit {
 
   public sendArtistTrackSearch = async (artist: string) => {
     console.log('search for tracks');
-    await this.spotify.searchArtistTracks(artist);
+    if (artist && this.auth.isAuthenticated()) {
+      const tracks = await this.spotify.searchArtistTracks(artist);
+      console.log('sendArtistTrackSearch stuff:',tracks);
+      return tracks;
+    }
   }
 
   private formatArtists = (artists: Observable<Artist[]>): Observable<object> => {
