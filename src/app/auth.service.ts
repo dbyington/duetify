@@ -125,6 +125,12 @@ export class AuthService {
     return spotifyAuthUri;
   };
 
+  public logout = () => {
+    this.authenticated = false;
+    this.localStorage.clearAll();
+    return true;
+  }
+
   private _loadFromLocalStorage = () => {
     if (this.localStorage.length() === 0) return false;
     const data = {};
