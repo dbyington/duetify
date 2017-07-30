@@ -70,6 +70,7 @@ export class SpotifyApiService {
         },
         err => {
           console.log('Error searching artists:', err);
+          artistsObservable.push({error: err.statusText, error_code: err.status})
         }
       );
       return Observable.of(artistsObservable);
@@ -110,7 +111,7 @@ export class SpotifyApiService {
         },
         err => {
           console.log('Error searching artist tracks:', err);
-          return err;
+          tracks.push({error: err.statusText, error_code: err.status})
         }
       );
       // console.log('searchArtistTracks returning:',tracks);

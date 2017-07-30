@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, Subscribable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import {map} from 'rxjs/operator/map';
@@ -26,7 +27,11 @@ export class SearchComponent implements OnInit {
   @Input() private state;
   // @Output() searchArtistChange: EventEmitter<string> = new EventEmitter();
 
-  constructor(private auth: AuthService, private spotify: SpotifyApiService) {
+  constructor(
+    private auth: AuthService,
+    private spotify: SpotifyApiService,
+    private router: Router
+  ) {
     this.state = this.formatArtists(this.artists).subscribe(obj => {
       console.log('artist list:',obj);
       this.artistComplete = obj;
@@ -45,7 +50,10 @@ export class SearchComponent implements OnInit {
       .distinctUntilChanged()
       .switchMap(search => {
         console.log('searching;',search);
-        if (search && this.auth.isAuthenticated()) {
+        if (!this.auth.isAuthenticated()) {
+          this.router.navigate(['/login']);
+        }
+        if (search) {
           const stuff = this.spotify.searchArtists(search);
           console.log('search component stuff:',stuff);
           return stuff;
@@ -63,7 +71,10 @@ export class SearchComponent implements OnInit {
 
   public sendArtistTrackSearch = async (artist: string) => {
     console.log('search for tracks');
-    if (artist && this.auth.isAuthenticated()) {
+    if (!this.auth.isAuthenticated()) {
+      this.router.navigate(['/login']);
+    }
+    if (artist) {
       const tracks = await this.spotify.searchArtistTracks(artist);
       console.log('sendArtistTrackSearch stuff:',tracks);
       return tracks;

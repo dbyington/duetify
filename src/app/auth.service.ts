@@ -50,8 +50,6 @@ export class AuthService {
     // otherwise we should be good.
     if (this.oauth['expires'] && this.oauth['expires'] < (new Date())) {
       data = this._refreshToken();
-    } else {
-      return true;
     }
 
     // if we do not have a token try to load from local storage
@@ -59,14 +57,8 @@ export class AuthService {
       data = this._loadFromLocalStorage();
     }
 
-    // if our data is good we'll have expires and created
-    // if the calculated expire date OR the set 'expires'
-    // date are less than now the token has expired, try refreshing.
-    if ( data['expires_in'] && data['created']
-      && ((new Date(moment(data['created']).add(data['expires_in'], 's').format()) < new Date())
-        || (data['expires'] < new Date())
-      )
-    ) {
+    // if expires is less than now the token has expired
+    if (data['expires'] < new Date()) {
       data = this._refreshToken();
     }
 
@@ -75,12 +67,11 @@ export class AuthService {
       let test = this._testAccessToken(data['access_token']);
       console.log('result of token test',test);
       if (test) {
-        console.log('created:',data['created']);
-        if (data['created']) this._setCreated(data['created']);
         this._setAccessToken(data['access_token']);
         // if passed a refresh_token set it, else set it to the current one
         this._setRefreshToken(data['refresh_token'] || this.oauth['refresh_token']);
-        this._setExpire(data['expires_in']);
+        this._setExpire_in(data['expires_in']);
+        this._setExpires(data['expires']);
         this._setTokenType(data['token_type']);
         this._setAuthenticated();
         console.log('Authenticated');
@@ -169,17 +160,14 @@ export class AuthService {
     this.oauth['refresh_token'] = token;
     this.localStorage.set('refresh_token', token);
   }
-  private _setExpire = (expire: number) => {
+  private _setExpire_in = (expire: number) => {
     this.oauth['expires_in'] = expire;
-    this.oauth['expires'] = new Date(moment().add(expire, 's').format());
-    console.log('token expires at:',this.oauth['expires']);
-    this.localStorage.set('expires', this.oauth['expires']);
     this.localStorage.set('expires_in', expire);
   }
 
-  private _setCreated = (created: Date) => {
-    console.log('setting created:',created);
-    this.localStorage.set('created', created);
+  private _setExpires = (expires: Date) => {
+    this.oauth['expires'] = expires;
+    this.localStorage.set('expires', expires);
   }
 
   private _setTokenType = (type: string) => {
