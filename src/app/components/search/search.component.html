@@ -1,3 +1,33 @@
-<p>
-  search works!
-</p>
+<form materialize class="col s12">
+  <div class="row">
+    <label for="artist-search">Artist search</label>
+    <input
+      placeholder="Type artist's name"
+      id="artist-search"
+      type="text"
+      class="autocomplete"
+      value=""
+      (input)="searchArtist($event.target.value)"
+      onsubmit="$event.preventDefault()"
+    >
+    <div class="autocomplete-artists">
+      <div *ngFor="let artist of artists | async"
+        (click)="sendArtistTrackSearch(artist.name)"
+        class="search-result">
+        {{artist.name}}
+      </div>
+    </div>
+
+    <!-- [value]="artistsearch"
+     -->
+    <!-- <button (click)="sendArtistTrackSearch()">Search</button> -->
+  </div>
+</form>
+<script>
+  $('input.autocomplete').autocomplete({
+    data: {{artist}},
+    limit: 10,
+    onAutocomplete: sendArtistTrackSearch(),
+    minLength: 3
+  });
+</script>
