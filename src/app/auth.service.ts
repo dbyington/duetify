@@ -3,6 +3,7 @@ import 'rxjs/add/operator/toPromise';
 import { Cookie } from 'ng2-cookies';
 import * as moment from 'moment';
 import * as qs from 'qs';
+import { LocalStorageService } from 'angular-2-local-storage';
 
 import { SpotifyApiService } from './spotify-api.service';
 
@@ -32,12 +33,20 @@ export class AuthService {
   private spotifyAuthUrl = 'https://accounts.spotify.com/authorize?';
   private client_id = 'c165fd4b3c454bd5b1c726c172ea2faf';
 
-  constructor(private spotify: SpotifyApiService) { }
+  constructor(
+    private spotify: SpotifyApiService,
+    private localStorage: LocalStorageService
+  ) { }
 
-  public isAuthenticated = () => this.authenticated;
+  public isAuthenticated = () => {
+    return this.authenticated ? this.authenticated : this.checkAuthData();
+  }
   public getAccessToken = () => this.access_token;
 
-  public checkAuthData = (data: any) => {
+  public checkAuthData = (data: any = false) => {
+    if (!data) {
+      data = this._loadFromLocalStorage();
+    }
     if (data.access_token) {
       let test = this._testAccessToken(data.access_token);
       if (test) {
@@ -50,7 +59,7 @@ export class AuthService {
         return true;
       } else {
         this._setUnAuthenticatd();
-        return test;
+        return false;
       }
     }
     this._setUnAuthenticatd();
@@ -73,15 +82,40 @@ export class AuthService {
     return spotifyAuthUri;
   };
 
-  private _testAccessToken = (accessToken: string) => {
-    return this.spotify.checkToken(accessToken);
+  private _loadFromLocalStorage = () => {
+    if (this.localStorage.length() === 0) return false;
+    const data = {};
+    const fields = ['access_token','refresh_token','expires_in','token_type'];
+    fields.forEach( field => {
+      data[field] = this.localStorage.get(field);
+    });
+    return data;
+  }
+
+  private _testAccessToken = async (accessToken: string) => {
+    return await this.spotify.checkToken(accessToken);
   }
 
   private _setAuthenticated = () => this.authenticated = true;
-  private _setUnAuthenticatd = () => this.authenticated = false;
-  private _setAccessToken = (token: string) => this.access_token = token;
-  private _setRefreshToken = (token: string) => this.refresh_token = token;
-  private _setExpire = (expire: number) => this.expires_in = expire;
-  private _setTokenType = (type: string) => this.token_type = type;
+  private _setUnAuthenticatd = () => {
+    this.authenticated = false;
+    this.localStorage.clearAll();
+  }
+  private _setAccessToken = (token: string) => {
+    this.access_token = token;
+    this.localStorage.set('access_token', token);
+  }
+  private _setRefreshToken = (token: string) => {
+    this.refresh_token = token;
+    this.localStorage.set('refresh_token', token);
+  }
+  private _setExpire = (expire: number) => {
+    this.expires_in = expire;
+    this.localStorage.set('expires_in', expire);
+  }
+  private _setTokenType = (type: string) => {
+    this.token_type = type;
+    this.localStorage.set('token_type', type);
+  }
 
 }
