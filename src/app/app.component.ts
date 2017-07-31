@@ -1,10 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'duetify-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.sass']
+  styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  title = 'duetify';
+export class AppComponent implements OnInit {
+  private title = 'duetify';
+
+  constructor () {}
+
+  ngOnInit () { }
+
 }
