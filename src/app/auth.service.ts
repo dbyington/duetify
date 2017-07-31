@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs/Subject';
+
 import 'rxjs/add/operator/toPromise';
 import { Cookie } from 'ng2-cookies';
 import * as moment from 'moment';
 import * as qs from 'qs';
 import { LocalStorageService } from 'angular-2-local-storage';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Subject, Observable } from 'rxjs/Rx';
-
-
+import { Observable } from 'rxjs/Rx';
 
 import { SpotifyApiService } from './spotify-api.service';
 
@@ -25,6 +26,7 @@ const getRandomString = len => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl
 @Injectable()
 export class AuthService {
 
+  public authed = new Subject<boolean>();
   private authenticated: boolean = false;
   private oauth = {};
   private state: string;
@@ -37,66 +39,130 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private spotify: SpotifyApiService,
-    private localStorage: LocalStorageService
-  ) { }
-
-  public isAuthenticated = () => {
-    return this.authenticated && this.oauth['expires'] > new Date() ? this.authenticated : this.checkAuthData(this.oauth || {});
+    private localStorage: LocalStorageService,
+    private router: Router
+  ) {
+    if (this.localStorage.keys().includes('access_token')) {
+      this.oauth = this._loadFromLocalStorage();
+      this.spotify.checkToken(this.oauth['access_token'])
+      .subscribe(
+        data => {
+          if (data['type'] === 'user') this.authenticated = true;
+        }
+      );
+    }
   }
+
+  ngOnInit () {
+  }
+
+  public isAuthenticated = () => this.authenticated;
+  public testAuth = (): Observable<boolean> => {
+        if (this.notExpired(this.oauth['expires'])) {
+      this._setAuthenticated();
+      this.spotify._setAuthToken(this.oauth['access_token']);
+      this.authed.next(true);
+    } else if (!this.oauth['access_token']) {
+      console.log('isAuthenticated; no access_token');
+      this.authed.next(false);
+    } else {
+      this.checkAuthData(this.oauth)
+        .subscribe(
+          data => {
+            this.authed.next(data);
+          },
+          err => {
+            console.log('there was an error with checkAuthData',err);
+          }
+        );
+    }
+    return Observable.from(this.authed);
+  }
+
   public getAccessToken = () => this.oauth['access_token'];
 
-  public checkAuthData = (data = {}) => {
-    // we have an 'expires' that suggests the token has expired, try to refresh.
-    // otherwise we should be good.
-    if (this.oauth['expires'] && this.oauth['expires'] < (new Date())) {
-      data = this._refreshToken();
-    }
+  public checkAuthData = (d: {}): Observable<boolean> => {
+    let checkResult = new Subject<boolean>();
+    let data = Object.assign({}, d);
 
-    // if we do not have a token try to load from local storage
     if (!data['access_token']) {
-      data = this._loadFromLocalStorage();
+      if (this.oauth['access_token']) {
+        data = Object.assign({}, this.oauth);
+      } else {
+        if (this.localStorage.length() > 0) {
+          data = Object.assign({}, this._loadFromLocalStorage());
+        } else {
+          checkResult.next(false);
+        }
+      }
     }
-
-    // if expires is less than now the token has expired
-    if (data['expires'] < new Date()) {
-      data = this._refreshToken();
+    if (!data['access_token']) {
+      checkResult.next(false);
     }
+    else {
+      this.spotify.checkToken(data['access_token'])
+        .subscribe(
+          result => {
+            if (result) {
+              this.setOauthToken(data);
+              checkResult.next(true);
+              return true;
+            }
+            checkResult.next(true);
+          },
+          err => {
+            console.log('checkAuthData got an error from checkToken:',err)
+            checkResult.next(false);
+          });
+        }
+    return Observable.from(checkResult);
+  }
 
-    // we should have an access_token by now, if not return false, i.e. try again
-    if (data['access_token']) {
-      let test = this._testAccessToken(data['access_token']);
-      console.log('result of token test',test);
-      if (test) {
-        this._setAccessToken(data['access_token']);
-        // if passed a refresh_token set it, else set it to the current one
-        this._setRefreshToken(data['refresh_token'] || this.oauth['refresh_token']);
-        this._setExpire_in(data['expires_in']);
-        this._setExpires(data['expires']);
-        this._setTokenType(data['token_type']);
-        this._setAuthenticated();
-        console.log('Authenticated');
+  private setOauthToken = (data: {}) => {
+    if (!data) return undefined;
+    this._setAccessToken(data['access_token']);
+    // when refreshing the access_token Spotify may not send a new refresh_token
+    this._setRefreshToken(data['refresh_token'] || this.oauth['refresh_token']);
+    this._setExpire_in(data['expires_in']);
+    this._setExpires(data['expires']);
+    this._setTokenType(data['token_type']);
+    this.spotify._setAuthToken(data['access_token']);
+    this._setAuthenticated();
+    console.log('Authenticated until:',this.oauth['expires']);
+    return this.oauth;
+  }
+
+  private notExpired = (expires: Date = this.oauth['expires']) => {
+    if (new Date(moment(expires).format()) < new Date()) {
+      const newExpire = this._refreshToken();
+      if (newExpire['expires'] > new Date()) {
         return true;
       } else {
-        this._setUnAuthenticatd();
         return false;
       }
     }
-    this._setUnAuthenticatd();
-    return false;
+    return true;
   }
-
+  public refreshToken = () => {
+    const result = this._refreshToken();
+    if (result['access_token']) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   private _refreshToken = () => {
     let newToken = {};
     const url = `${this.duetify_uri}refresh_token?refresh_token=${this.oauth['refresh_token']}`
     this.http.get(url)
     .subscribe(
       data => {
-        newToken = data;
+        newToken = this.setOauthToken(data);
       },
       err => {
         console.log('error refreshing token:',err);
+        throw(err);
       });
-    // return the whole body since it may have a new refresh_token.
     return newToken;
   }
 
@@ -124,53 +190,42 @@ export class AuthService {
 
   private _loadFromLocalStorage = () => {
     if (this.localStorage.length() === 0) return false;
-    const data = {};
     const fields = ['access_token','refresh_token','expires_in','token_type', 'expires'];
     fields.forEach( field => {
-      data[field] = this.localStorage.get(field);
+      this.oauth[field] = this.localStorage.get(field);
     });
-    return data;
-  }
-
-  private _testAccessToken = (accessToken: string) => {
-    const test = this.spotify.checkToken(accessToken)
-      .subscribe(
-        data => {
-          console.log('testAccessToken:',accessToken,data);
-          return data['type'] === 'user' ? true : false;
-        },
-        err => {
-          console.log('error in testAccessToken:',err);
-          return err
-        }
-      );
-    return test;
+    return this.oauth;
   }
 
   private _setAuthenticated = () => this.authenticated = true;
   private _setUnAuthenticatd = () => {
     this.authenticated = false;
-    // this.localStorage.clearAll();
   }
   private _setAccessToken = (token: string) => {
+    if (!token) return undefined;
+    this.spotify._setAuthToken(token);
     this.oauth['access_token'] = token;
     this.localStorage.set('access_token', token);
   }
   private _setRefreshToken = (token: string) => {
+    if (!token) return undefined;
     this.oauth['refresh_token'] = token;
     this.localStorage.set('refresh_token', token);
   }
   private _setExpire_in = (expire: number) => {
+    if (!expire) return undefined;
     this.oauth['expires_in'] = expire;
     this.localStorage.set('expires_in', expire);
   }
 
   private _setExpires = (expires: Date) => {
+    if (!expires) return undefined;
     this.oauth['expires'] = expires;
     this.localStorage.set('expires', expires);
   }
 
   private _setTokenType = (type: string) => {
+    if (!type) return undefined;
     this.oauth['token_type'] = type;
     this.localStorage.set('token_type', type);
   }

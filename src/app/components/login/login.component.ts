@@ -17,12 +17,13 @@ export class LoginComponent implements OnInit {
 
   constructor(private auth: AuthService, private router: Router) {
     if (this.auth.isAuthenticated()) {
-      this.router.navigate(['/']);
+      this.router.navigateByUrl('/');
+    } else {
+      this.spotifyLogin = this.auth.getLoginUrl();
     }
   }
 
   ngOnInit() {
-    this.spotifyLogin = this.auth.getLoginUrl();
   }
 
 }

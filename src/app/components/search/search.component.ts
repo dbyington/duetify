@@ -25,7 +25,6 @@ export class SearchComponent implements OnInit {
   private artistsearch = new Subject<string>();
   private artistComplete: object;
   @Input() private state;
-  // @Output() searchArtistChange: EventEmitter<string> = new EventEmitter();
 
   constructor(
     private auth: AuthService,
@@ -54,16 +53,21 @@ export class SearchComponent implements OnInit {
           this.router.navigate(['/login']);
         }
         if (search) {
-          const stuff = this.spotify.searchArtists(search);
-          console.log('search component stuff:',stuff);
-          return stuff;
+          const result = this.spotify.searchArtists(search);
+          if (result[0] && result[0].error_code && result[0].error_code === 401) {
+            // something went wrong with auth try refreshing
+            this.auth.refreshToken();
+            console.warn('got 401 in search',result[0]);
+          }
+          console.log('search component stuff:',result);
+          return result;
         } else {
           return Observable.of<Artist[]>([]);
         }
       })
       .catch(err => {
         console.log('Error in switchMap:',err);
-        return Observable.of<Artist[]>([]); //this.searchArtist);
+        return Observable.of<Artist[]>([]);
       });
 
     this.artistComplete = this.formatArtists(this.artists);
@@ -96,7 +100,5 @@ export class SearchComponent implements OnInit {
     }
     return formatted.asObservable();
   }
-
-
 
 }

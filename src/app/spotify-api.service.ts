@@ -13,30 +13,29 @@ export class SpotifyApiService {
 
   private apiUrl = 'https://api.spotify.com/v1/';
   private access_token: string;
-  // private authHeader: object;
 
   constructor(private http: HttpClient) { }
 
   public checkToken = (token): Observable<{}> => {
     let checkResult = {};
-    this.http.get(this.apiUrl + 'me', {
+    return this.http.get(this.apiUrl + 'me', {
       headers: new HttpHeaders().append('Authorization', 'Bearer ' + token),
+      observe: 'response'
     })
-      .subscribe(
+      .map(
         data => {
-          this.access_token = token;
-          console.log('checkToken:',data);
-          checkResult = data;
-        },
-        err => {
-          console.log('got an error:', err);
-          checkResult =  err.error.error;
+          if (data.status !== 200) {
+            this.access_token = token;
+            return false;
+          } else {
+            return true;
+          }
         }
-      );
-    return Observable.of(checkResult);
+      )
+      .first();
   }
 
-  private _setAuthToken = (token) => {
+  public _setAuthToken = (token) => {
     this.access_token = token;
   }
 
@@ -61,11 +60,8 @@ export class SpotifyApiService {
               artist.smallPicUrl = obj.images[picId].url;
               artist.bigPicUrl = obj.images[0].url;
             }
-            // console.log('searchArtist got:',artist);
-            // artistsObservable = [artist, ...artistsObservable];
             artistsObservable.push(artist);
           })
-          // console.log('searchArtist returning:',artistsObservable);
           return Observable.of(artistsObservable);
         },
         err => {
@@ -103,7 +99,6 @@ export class SpotifyApiService {
                 track.uri = tk.uri;
                 // track.album; // TODO: as mentioned in track.js
                 tracks.push(track);
-                // console.log('searchArtistTracks got track:',track);
               }
             }
           });
@@ -114,11 +109,8 @@ export class SpotifyApiService {
           tracks.push({error: err.statusText, error_code: err.status})
         }
       );
-      // console.log('searchArtistTracks returning:',tracks);
     }
     return Observable.of(tracks);
-
   }
-
 
 }

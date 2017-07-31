@@ -12,11 +12,15 @@ import { RoutingModule } from '../../routing/routing.module';
 export class DisplayComponent implements OnInit {
 
   constructor(private auth: AuthService, private router: Router) {
-
-    if (!this.auth.isAuthenticated()) this.router.navigate(['/login']);
-    console.log('Authenticated:',this.auth.isAuthenticated());
   }
-  ngOnInit() {
+
+  ngOnInit () {
+    console.log('DISPLAY OnInit');
+    if (this.auth.isAuthenticated()) {
+      this.router.navigateByUrl('/');
+    } else {
+      this.router.navigateByUrl('/login');
+    }
   }
 
 }
