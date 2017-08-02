@@ -16,10 +16,11 @@ export class DisplayComponent implements OnInit {
 
   ngOnInit () {
     console.log('DISPLAY OnInit');
-    if (this.auth.isAuthenticated()) {
-      this.router.navigateByUrl('/');
-    } else {
+    if (!this.auth.isAuthenticated()) {
+      console.log('routing to login');
       this.router.navigateByUrl('/login');
+      // this.router.navigateByUrl('/');
+    } else {
     }
   }
 

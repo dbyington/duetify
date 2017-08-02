@@ -31,10 +31,10 @@ export class AuthService {
   private oauth = {};
   private state: string;
   private stateKey ='spotify_auth_state';
-  private scope = 'user-read-email user-read-currently-playing user-modify-playback-state user-read-playback-state';
   private duetify_uri = 'http://localhost:8080/';
   private spotifyAuthUrl = 'https://accounts.spotify.com/authorize?';
   private client_id = 'c165fd4b3c454bd5b1c726c172ea2faf';
+  private scope = 'user-read-email user-read-currently-playing user-modify-playback-state user-read-playback-state playlist-modify-private playlist-read-private';
 
   constructor(
     private http: HttpClient,
@@ -47,18 +47,22 @@ export class AuthService {
       this.spotify.checkToken(this.oauth['access_token'])
       .subscribe(
         data => {
-          if (data['type'] === 'user') this.authenticated = true;
+          if (data['type'] === 'user') {
+            this.authenticated = true;
+          }
         }
       );
     }
   }
 
   ngOnInit () {
+    this.spotify.getUser();
+
   }
 
   public isAuthenticated = () => this.authenticated;
   public testAuth = (): Observable<boolean> => {
-        if (this.notExpired(this.oauth['expires'])) {
+    if (this.notExpired(this.oauth['expires'])) {
       this._setAuthenticated();
       this.spotify._setAuthToken(this.oauth['access_token']);
       this.authed.next(true);
@@ -184,7 +188,8 @@ export class AuthService {
 
   public logout = () => {
     this.authenticated = false;
-    this.localStorage.clearAll();
+    this.localStorage.remove('access_token', 'refresh_token');
+    this.localStorage.set('expires', new Date());
     return true;
   }
 
