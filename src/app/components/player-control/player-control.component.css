@@ -1,9 +1,31 @@
-* {
-  background-color: #0D2029;
+:host {
+  background-color: #252525;
   position: fixed;
   bottom: 0;
   left: 0;
   margin-bottom: 0;
   height: 100px;
   width: 100vw;
+  border-top: 2px solid #404040;
+  border-left: 2px solid #404040;
+  border-right: 2px solid #404040;
+  border-top-right: 5px;
+  border-top-left: 5px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.user {
+
+}
+
+.play-control {
+
+}
+
+.device-control {
+
 }

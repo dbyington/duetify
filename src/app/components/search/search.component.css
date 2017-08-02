@@ -1,8 +1,4 @@
-* {
+:host {
   height: 100px;
   /*background-color: #3e3e3e;*/
-}
-
-.autocomplete-artists div {
-  font-size: .5em;
 }

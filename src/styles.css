@@ -3,12 +3,13 @@ body {
   display: flex;
   flex-direction: column;
   background-color: #000000;
-  color: #5A6D76;
+  color: #76838A;
   width: 100vw;
+  min-height: 100vh;
   font-family: 'Comfortaa', cursive;
   font-size: 1.4em;
 }
 
 .container {
-  background-color: #182A33;
+  background-color: #303030;
 }

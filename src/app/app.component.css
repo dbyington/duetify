@@ -1,4 +1,12 @@
+:host {
+  flex-grow: 1;
+}
 div#top {
+  display: flex;
+  flex-direction: column;
+}
+
+router-outlet {
   display: flex;
   flex-direction: column;
 }

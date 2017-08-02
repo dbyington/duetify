@@ -1,4 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -6,7 +7,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieModule } from 'ngx-cookie';
 import { Router } from '@angular/router';
 import { LocalStorageModule } from 'angular-2-local-storage';
-import { MaterializeModule } from 'angular2-materialize';
+import { BusyModule } from 'angular2-busy';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -46,7 +47,8 @@ import { RoutingModule } from './routing/routing.module';
     CookieModule.forRoot(),
     FlexLayoutModule,
     RoutingModule,
-    MaterializeModule,
+    BrowserAnimationsModule,
+    BusyModule,
     LocalStorageModule.withConfig({
       prefix: 'duetify',
       storageType: 'localStorage',
