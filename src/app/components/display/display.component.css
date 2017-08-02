@@ -7,7 +7,7 @@
   display: flex;
   flex-grow: 1;
   /*flex-direction: row;*/
-  margin-bottom: 100px;
+  padding-bottom: 100px;
   min-height: 100vh;
   height: 100%;
 }
