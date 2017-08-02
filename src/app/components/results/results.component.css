@@ -1,0 +1,58 @@
+:host {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+}
+
+.icon {
+  display: flex;
+  /*justify-content: center;*/
+  /*align-items: center;*/
+  /*flex-direction: column;*/
+  /*justify-content: center;*/
+  padding: 2px;
+  margin: 5px;
+  font-size: .5em;
+
+}
+
+.artist {
+  width: 250px;
+  border: 1px solid #172B34;
+  border-radius: 5px;
+  background-color: #171717;
+}
+.artist :hover {
+  background-color: #89959B;
+  color: #1E3943;
+}
+.cover-art-image {
+  width: 64px;
+  height: 64px;
+}
+
+#artist-name {
+
+}
+
+.tracks {
+  min-height: 100vh;
+  background-repeat: no-repeat;
+}
+
+.playlist {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+div img {
+  background-repeat:no-repeat;
+  background-size:contain;
+}
+
+img {
+  width: 64px;
+  height: 64px;
+}

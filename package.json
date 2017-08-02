@@ -23,13 +23,19 @@
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^4.0.0",
     "@ng-bootstrap/ng-bootstrap": "^1.0.0-alpha.29",
+    "angular-2-local-storage": "^1.0.1",
+    "angular2-busy": "^2.0.4",
     "angular2-log": "0.0.6",
+    "angular2-materialize": "^15.1.1",
     "core-js": "^2.4.1",
+    "materialize-css": "^0.100.1",
     "moment": "^2.18.1",
     "ng2-cookies": "^1.0.12",
     "ngx-cookie": "^1.0.0",
-    "rxjs": "^5.4.1",
-    "zone.js": "^0.8.14"
+    "qs": "^6.5.0",
+    "reflect-metadata": "^0.1.10",
+    "rxjs": "^5.4.2",
+    "zone.js": "^0.8.16"
   },
   "devDependencies": {
     "@angular/cli": "1.2.4",

@@ -1,3 +1,7 @@
-<p>
-  your-music works!
-</p>
+<div class="recent">
+  Recent artist searches
+  <ul *ngIf="recent; else noRecent">
+    <li *ngFor="let artist of recent" class="recent-artist"><img *ngIf="artist.smallPicUrl" [src]="artist.smallPicUrl"/>{{artist.name}}</li>
+  </ul>
+  <ng-template #noRecent>No searched artists</ng-template>
+</div>

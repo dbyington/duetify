@@ -1,0 +1,9 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  /*flex-flow: column;*/
+  border: 2px solid #4f4f4f;
+  border-radius: 5px;
+  /*height: 100vh;*/
+  flex-grow: 1;
+}

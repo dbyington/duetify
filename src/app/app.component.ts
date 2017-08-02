@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'duetify-root',
@@ -8,8 +9,11 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit {
   private title = 'duetify';
 
-  constructor () {}
+  constructor (private auth: AuthService) {
+  }
 
-  ngOnInit () { }
+  ngOnInit () {
+    this.auth.testAuth();
+  }
 
 }

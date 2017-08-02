@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
+import { SpotifyApiService } from '../../spotify-api.service';
+import { Artist } from '../../artist';
+
 @Component({
   selector: 'duetify-your-music',
   templateUrl: './your-music.component.html',
@@ -7,9 +10,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class YourMusicComponent implements OnInit {
 
-  constructor() { }
+  private recent: Artist[];
+
+  constructor(private spotify: SpotifyApiService) { }
 
   ngOnInit() {
+    this.spotify.recentArtists.subscribe(recent => this.recent = recent);
+
   }
 
 }

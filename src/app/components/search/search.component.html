@@ -1,3 +1,13 @@
-<p>
-  search works!
-</p>
+<form (keydown.enter)="$event.preventDefault()">
+  <div>
+    <label for="artist-search">Duetify artist search</label>
+    <input
+      placeholder="Type artist's name"
+      id="artist-search"
+      type="text"
+      value=""
+      (input)="artistsearch.next($event.target.value)"
+      onsubmit="$event.preventDefault()"
+    >
+  </div>
+</form>
