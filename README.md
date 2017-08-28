@@ -27,10 +27,20 @@ These instructions will get you a copy of the project up and running on your loc
 ```
 cd <to your work location>
 git clone https://github.com/dbyington/duetify.git
+git clone https://github.com/dbyington/duetify-server.git
+```
+Create the file '.env' in the root of the server with the following content:
+```
+CLIENT_ID='your Spotify API client id'
+CLIENT_SECRET='your Spotify API client secret'
+SERVER_PORT='8080' #the port you want the server on
+```
+Then run
+```
 npm install
 npm start
 ```
-See the duetify server [README.md](https://github.com/dbyington/duetify-server/blob/readme/README.md) for getting and running the server.
+See the duetify server [README.md](https://github.com/dbyington/duetify-server/blob/readme/README.md) for more information running the server.
 
 ## Running the tests
 
