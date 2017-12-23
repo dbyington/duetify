@@ -7,7 +7,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieModule } from 'ngx-cookie';
 import { Router } from '@angular/router';
 import { LocalStorageModule } from 'angular-2-local-storage';
-import { BusyModule } from 'angular2-busy';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -48,7 +47,6 @@ import { RoutingModule } from './routing/routing.module';
     FlexLayoutModule,
     RoutingModule,
     BrowserAnimationsModule,
-    BusyModule,
     LocalStorageModule.withConfig({
       prefix: 'duetify',
       storageType: 'localStorage',

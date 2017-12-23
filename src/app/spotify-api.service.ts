@@ -49,7 +49,7 @@ export class SpotifyApiService {
   }
 
   public checkToken = (token): Observable<{}> => {
-    let checkResult = {};
+    const checkResult = {};
     return this.http.get(this.apiUrl + 'me', {
       headers: new HttpHeaders().append('Authorization', 'Bearer ' + token),
       observe: 'response'
@@ -90,9 +90,9 @@ export class SpotifyApiService {
       this.setStatus({status: 'error', error: 'Artist not supplied', code: 400});
       return new Observable();
     }
-    console.log('searchArtists searching:',artist);
+    console.log('searchArtists searching:', artist);
     const query = `q=${artist}&type=artist`;
-    this.search(query,this._searchArtistsCallback);
+    this.search(query, this._searchArtistsCallback);
     if (this.status['status'] !== 'ok') {
       return new Observable();
     } else {
@@ -105,11 +105,11 @@ export class SpotifyApiService {
       this.setStatus({status: 'error', error: 'Artist not supplied', code: 400});
       return new Observable();
     }
-    console.log('searchArtistTracks searching:',artist);
+    console.log('searchArtistTracks searching:', artist);
     this.currentArtist.next(artist);
     this.addRecentArtist(artist);
     const query = `q=artist:"${artist.name}"&type=track`;
-    this.search(query,this._searchArtistTracksCallback);
+    this.search(query, this._searchArtistTracksCallback);
     if (this.status['status'] !== 'ok') {
       return new Observable();
     } else {
@@ -121,7 +121,7 @@ export class SpotifyApiService {
     if (query.length < 2) {
       this.setStatus({status: 'error', error: 'query too short', code: 400});
     }
-    console.log('search query:',query);
+    console.log('search query:', query);
     this.setStatus({status: 'ok', error: '', code: 200});
     const authHeader = new HttpHeaders().append('Authorization', 'Bearer ' + this.access_token);
     const apiEndpoint = 'search';
@@ -139,9 +139,9 @@ export class SpotifyApiService {
 
   private _searchArtistsCallback =
   data => {
-    let artistsResults = [];
+    const artistsResults = [];
     data['artists'].items.forEach( obj => {
-      let artist = new Artist();
+      const artist = new Artist();
       artist.name = obj.name;
       artist.id = obj.id;
       artist.popularity = obj.popularity;
@@ -154,7 +154,7 @@ export class SpotifyApiService {
       }
       artistsResults.push(artist);
     })
-    console.log('ArtistsCallback got:',artistsResults);
+    console.log('ArtistsCallback got:', artistsResults);
     this.artistSearchResults.next(artistsResults);
   };
 
@@ -162,24 +162,24 @@ export class SpotifyApiService {
     this.setStatus({status: 'ok', error: '', code: 200});
     if (this.localStorage.keys().includes('playlist')) {
       this.playlist.next(this.localStorage.get('playlist'));
-      console.log('found playlist in localStorage',this.localStorage.get('playlist'));
+      console.log('found playlist in localStorage', this.localStorage.get('playlist'));
       return;
     }
     const authHeader = new HttpHeaders().append('Authorization', 'Bearer ' + this.access_token);
     const userId = this.user.getValue()['id'];
     const apiEndpoint = `users/${userId}/playlists`;
     const url = `${this.apiUrl}${apiEndpoint}?limit=50`;
-    console.log('getting playlist:',url);
+    console.log('getting playlist:', url);
     this.http.get(url, {headers: authHeader})
     .subscribe(
       pls => {
-        console.log('playlists:',pls);
-        const pl = pls['items'].find( pl => pl['name'] === this.playlistName);
+        console.log('playlists:', pls);
+        const pl = pls['items'].find( el => pl['name'] === this.playlistName);
         if (!pl) {
-          console.log('playlist not found creating:',pl);
-          // this.createPlaylist();
+          console.log('playlist not found creating:', pl);
+          this.createPlaylist();
         } else {
-          console.log('got playlist:',pl);
+          console.log('got playlist:', pl);
           this.localStorage.set('playlist', pl);
           this.playlist.next(pl);
         }
@@ -196,7 +196,7 @@ export class SpotifyApiService {
 
   private createPlaylist = () => {
     this.setStatus({status: 'ok', error: '', code: 200});
-    console.log('user info:',this.user.getValue());
+    console.log('user info:', this.user.getValue());
     const userId = this.user.getValue()['id'];
     const authHeader = new HttpHeaders().append('Authorization', 'Bearer ' + this.access_token);
     const apiEndpoint = `users/${userId}/playlists`;
@@ -205,7 +205,7 @@ export class SpotifyApiService {
     this.http.post(url, body, {headers: authHeader})
     .subscribe(
       pls => {
-        console.log('created playlist:',pls);
+        console.log('created playlist:', pls);
         this.localStorage.set('playlist', pls);
         this.playlist.next(pls);
         this.reloadPlaylist();
@@ -232,11 +232,11 @@ export class SpotifyApiService {
       if (tracks.length < 1) return;
       const body = {uris: tracks};
       const url = `${this.apiUrl}${apiEndpoint}`;
-      console.log('reloadPlaylist with:',url,body);
+      console.log('reloadPlaylist with:', url, body);
       this.http.put(url, body, {headers: authHeader})
       .subscribe(
         pls => {
-          console.log('playlist refreshed:',this.playlist.getValue());
+          console.log('playlist refreshed:', this.playlist.getValue());
           this.playlist.next(this.playlist.getValue());
         },
         err => {
@@ -249,13 +249,13 @@ export class SpotifyApiService {
 
   private _searchArtistTracksCallback =
     data => {
-      const reg = '&|and|(feat|with).*'+this.currentArtist['name'];
+      const reg = '&|and|(feat|with).*' + this.currentArtist['name'];
       const artistRegexp = new RegExp(reg);
-      let tracks = [];
+      const tracks = [];
       // console.log('tracks callback:',data.tracks.items);
       data.tracks.items.forEach( tk => {
         // console.log('track:',tk);
-        let track =  new Track();
+        const track =  new Track();
         if (tk.name) {
           if ((tk.artists.length > 1 && tk.artists.some(a => a.name === this.currentArtist.getValue().name)
             || tk.artists.some(a => a.name.match(artistRegexp)))) {
@@ -281,7 +281,7 @@ export class SpotifyApiService {
       headers: new HttpHeaders().append('Authorization', 'Bearer ' + this.access_token),
     })
     .subscribe( user => {
-      console.log('setting next user:',user);
+      console.log('setting next user:', user);
       this.user.next(user);
     },
       err => this.setStatus({status: 'error', error: err.statusText, code: err.status}));
@@ -293,11 +293,11 @@ export class SpotifyApiService {
   }
 
   private addRecentArtist = (artist: Artist) => {
-    let recent = this.recentArtists.getValue();
+    const recent = this.recentArtists.getValue();
     console.log(`adding ${artist.name} to recent list:`, recent);
-    if (recent.length === this.recentSize) recent.pop();
-    recent.unshift(artist)
-    console.log('recent',recent);
+    if (recent.every( el => el.name !== artist.name)) (recent.unshift(artist);
+    if (recent.length > this.recentSize) recent.pop();
+    console.log('recent', recent);
   }
 
 
