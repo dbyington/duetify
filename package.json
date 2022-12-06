@@ -30,7 +30,7 @@
     "moment": "^2.18.1",
     "ng2-cookies": "^1.0.12",
     "ngx-cookie": "^2.0.1",
-    "qs": "^6.5.0",
+    "qs": "^6.5.3",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.5.6",
     "typescript": "^2.5.3",
